@@ -5,7 +5,7 @@ title: PMF — Procedural Music Format
 
 # PMF — Procedural Music Format
 
-**1.0** &nbsp;·&nbsp; [Spec](SPEC.md) &nbsp;·&nbsp; [Schema](schema/pmf-1.0.schema.json) &nbsp;·&nbsp; [Examples](examples/) &nbsp;·&nbsp; [Why PMF](docs/rationale.md)
+**1.0** &nbsp;·&nbsp; [Website](https://simplyliz.github.io/pmf-spec/) &nbsp;·&nbsp; [Spec](SPEC.md) &nbsp;·&nbsp; [Schema](schema/pmf-1.0.schema.json) &nbsp;·&nbsp; [Examples](examples/) &nbsp;·&nbsp; [Why PMF](docs/rationale.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Version: 1.0](https://img.shields.io/badge/version-1.0-blue.svg)](SPEC.md)
