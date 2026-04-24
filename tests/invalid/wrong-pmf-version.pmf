@@ -1,6 +1,6 @@
 {
-  "_invalid_reason": "pmf_version '1.0' does not match required value '0.1'",
-  "pmf_version": "1.0",
+  "_invalid_reason": "pmf_version '2.0' does not match required value '1.0'",
+  "pmf_version": "2.0",
   "engine": "test-engine",
   "summary": "A track with the wrong PMF version.",
   "identity": {

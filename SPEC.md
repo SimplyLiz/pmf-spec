@@ -1,15 +1,15 @@
 ---
 layout: default
-title: PMF Specification — Draft 0.1
+title: PMF Specification — 1.0
 ---
 
 # Procedural Music Format (PMF) — Specification
 
-**Version:** Draft 0.1  
+**Version:** 1.0  
 **File extension:** `.pmf`  
 **Base encoding:** JSON (UTF-8)  
-**Schema:** [schema/pmf-0.1.schema.json](schema/pmf-0.1.schema.json)  
-**Status:** Draft — feedback welcome via [GitHub Issues](https://github.com/SimplyLiz/pmf-spec/issues)
+**Schema:** [schema/pmf-1.0.schema.json](schema/pmf-1.0.schema.json)  
+**Status:** Stable — feedback welcome via [GitHub Issues](https://github.com/SimplyLiz/pmf-spec/issues)
 
 ---
 
@@ -91,7 +91,7 @@ The top sections (`summary`, `identity`, `harmony`, `melody`, `arrangement`) are
 
 ```json
 {
-  "pmf_version": "0.1",
+  "pmf_version": "1.0",
   "engine": "<engine-name>",
   "engine_version": "<semver>",
 
@@ -118,7 +118,7 @@ The top sections (`summary`, `identity`, `harmony`, `melody`, `arrangement`) are
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `pmf_version` | string | yes | PMF format version. Currently `"0.1"` |
+| `pmf_version` | string | yes | PMF format version. Currently `"1.0"` |
 | `engine` | string | yes | Name of the generating engine (e.g. `"synthwave_engine"`) |
 | `engine_version` | string | no | Semver of the engine that wrote this file |
 | `summary` | string | yes | Engine-generated natural language description of the composition |
@@ -306,7 +306,7 @@ Engine support for approximate round-trip is declared per-engine. Engines that d
 
 ## 9. Versioning
 
-`pmf_version` follows semver. The current version is `0.1`.
+`pmf_version` follows semver. The current version is `1.0`.
 
 | Bump | What changes | Notes |
 |---|---|---|
@@ -315,8 +315,6 @@ Engine support for approximate round-trip is declared per-engine. Engines that d
 | Major | Required fields changed or removed | Readers must warn on mismatch |
 
 Field removal is always a major bump. Field rename is always a major bump.
-
-The format reaches **1.0** after at least two independent engines have published round-tripped PMF files against the draft spec.
 
 ---
 

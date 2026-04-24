@@ -57,7 +57,7 @@ PMF defines two modes of round-trip, with different requirements and guarantees.
 Before submitting a PMF to an engine for round-trip, validate it against the schema:
 
 ```bash
-npx ajv-cli validate -s schema/pmf-0.1.schema.json -d your-file.pmf
+npx ajv-cli validate -s schema/pmf-1.0.schema.json -d your-file.pmf
 ```
 
 A file that fails schema validation may be accepted by some engines and rejected by others. Engines are not required to validate incoming PMF files, but they are encouraged to warn on schema violations.

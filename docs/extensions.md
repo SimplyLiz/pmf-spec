@@ -17,7 +17,7 @@ For data that does not fit into those sections, PMF provides the `extensions` fi
 
 ```json
 {
-  "pmf_version": "0.1",
+  "pmf_version": "1.0",
   "engine": "synthwave_engine",
   "summary": "...",
   "identity": { ... },

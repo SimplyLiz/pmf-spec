@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://SimplyLiz.github.io/pmf-spec/schema/pmf-0.1.schema.json",
-  "title": "Procedural Music Format (PMF) 0.1",
-  "description": "Schema for PMF 0.1 composition files. An open format for procedural and AI-assisted music composition data.",
+  "$id": "https://SimplyLiz.github.io/pmf-spec/schema/pmf-1.0.schema.json",
+  "title": "Procedural Music Format (PMF) 1.0",
+  "description": "Schema for PMF 1.0 composition files. An open format for procedural and AI-assisted music composition data.",
   "type": "object",
   "required": ["pmf_version", "engine", "summary", "identity", "render_key"],
   "properties": {
     "pmf_version": {
       "type": "string",
-      "const": "0.1",
+      "const": "1.0",
       "description": "PMF format version."
     },
     "engine": {

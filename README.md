@@ -5,10 +5,10 @@ title: PMF — Procedural Music Format
 
 # PMF — Procedural Music Format
 
-**Draft 0.1** &nbsp;·&nbsp; [Spec](SPEC.md) &nbsp;·&nbsp; [Schema](schema/pmf-0.1.schema.json) &nbsp;·&nbsp; [Examples](examples/) &nbsp;·&nbsp; [Why PMF](docs/rationale.md)
+**1.0** &nbsp;·&nbsp; [Spec](SPEC.md) &nbsp;·&nbsp; [Schema](schema/pmf-1.0.schema.json) &nbsp;·&nbsp; [Examples](examples/) &nbsp;·&nbsp; [Why PMF](docs/rationale.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Status: Draft](https://img.shields.io/badge/status-draft%200.1-orange.svg)](SPEC.md)
+[![Version: 1.0](https://img.shields.io/badge/version-1.0-blue.svg)](SPEC.md)
 
 PMF is an open JSON-based format for procedural and AI-assisted music composition data.
 
@@ -20,7 +20,7 @@ It stores **the recipe that generates music** — not the audio, not the score, 
 
 ```json
 {
-  "pmf_version": "0.1",
+  "pmf_version": "1.0",
   "engine": "my-engine",
   "summary": "Mid-tempo track in A minor at 128 BPM. Sparse intro builds to full mix by bar 4.",
   "identity": {
@@ -93,7 +93,7 @@ Reserve 1.0 for after at least two engines have round-tripped real files against
 A validator CLI is planned. In the meantime, use the JSON Schema directly:
 
 ```bash
-npx ajv-cli validate -s schema/pmf-0.1.schema.json -d your-file.pmf
+npx ajv-cli validate -s schema/pmf-1.0.schema.json -d your-file.pmf
 ```
 
 ---

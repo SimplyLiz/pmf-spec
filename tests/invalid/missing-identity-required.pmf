@@ -1,6 +1,6 @@
 {
   "_invalid_reason": "identity is missing required fields: bpm, key, bars",
-  "pmf_version": "0.1",
+  "pmf_version": "1.0",
   "engine": "test-engine",
   "summary": "A track with incomplete identity.",
   "identity": {
