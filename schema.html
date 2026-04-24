@@ -6,21 +6,21 @@
   <title>PMF JSON Schema 1.0 — Procedural Music Format</title>
   <style>
     :root {
-      --bg:        #07080d;
-      --surface:   #0e0f1a;
-      --surface-2: #141627;
-      --border:    #1c1f35;
-      --border-h:  #2d3154;
+      --bg:        #faf9f6;
+      --surface:   #f3f0e8;
+      --surface-2: #ebe6da;
+      --border:    #ddd6c8;
+      --border-h:  #c8bfaf;
       --v:         #7c3aed;
-      --vl:        #a78bfa;
-      --c:         #06b6d4;
-      --cl:        #67e8f9;
+      --vl:        #7c3aed;
+      --amber:     #c2410c;
+      --green:     #15803d;
       --g:         #34d399;
       --gl:        #6ee7b7;
       --o:         #f97316;
-      --text:      #eef2ff;
-      --text-2:    #7c85a9;
-      --text-3:    #3d4268;
+      --text:      #1c1917;
+      --text-2:    #57534e;
+      --text-3:    #a8a29e;
       --mono:      'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
       --sans:      -apple-system,'Helvetica Neue',Arial,sans-serif;
     }
@@ -48,7 +48,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(7,8,13,0.9);
+      background: rgba(250,249,246,0.92);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
     }
@@ -158,10 +158,10 @@
       font-weight: 700;
       letter-spacing: -0.035em;
       margin-bottom: 1.25rem;
-      background: linear-gradient(135deg, #eef2ff 30%, #67e8f9 80%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      background: none; color: var(--text);
+      
+      
+      
     }
 
     .page-meta {
