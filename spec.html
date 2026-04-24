@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMF Specification 1.0 — Procedural Music Format</title>
+  <style>
+    :root {
+      --bg:        #07080d;
+      --surface:   #0e0f1a;
+      --surface-2: #141627;
+      --border:    #1c1f35;
+      --border-h:  #2d3154;
+      --v:         #7c3aed;
+      --vl:        #a78bfa;
+      --c:         #06b6d4;
+      --cl:        #67e8f9;
+      --text:      #eef2ff;
+      --text-2:    #7c85a9;
+      --text-3:    #3d4268;
+      --mono:      'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+      --sans:      -apple-system,'Helvetica Neue',Arial,sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 52px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7,8,13,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .logo-pip {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--v), var(--c));
+    }
+
+    .nav-links { display: flex; list-style: none; gap: 1.75rem; }
+    .nav-links a {
+      font-size: 0.82rem;
+      color: var(--text-3);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--text-2); }
+
+    /* ─── LAYOUT ─── */
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 52px;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─── */
+    aside {
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 2.5rem 1.25rem 2.5rem 0;
+      border-right: 1px solid var(--border);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .sidebar-label {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.75rem;
+      padding-left: 0.75rem;
+    }
+
+    .sidebar-nav { list-style: none; }
+
+    .sidebar-nav a {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-2);
+      text-decoration: none;
+      padding: 0.3rem 0.75rem;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+      line-height: 1.4;
+    }
+
+    .sidebar-nav a:hover {
+      color: var(--text);
+      background: var(--surface);
+      border-left-color: var(--border-h);
+    }
+
+    .sidebar-nav a.active {
+      color: var(--vl);
+      background: rgba(124,58,237,0.08);
+      border-left-color: var(--v);
+    }
+
+    .sidebar-nav .sub a {
+      font-size: 0.75rem;
+      padding-left: 1.25rem;
+      color: var(--text-3);
+    }
+
+    .sidebar-nav .sub a:hover { color: var(--text-2); }
+    .sidebar-nav .sub a.active { color: var(--vl); }
+
+    /* ─── CONTENT ─── */
+    main {
+      padding: 3.5rem 3rem 6rem 3.5rem;
+      min-width: 0;
+    }
+
+    /* Header */
+    .spec-header {
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .spec-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--vl);
+      margin-bottom: 0.75rem;
+    }
+
+    .spec-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #eef2ff 30%, #c4b5fd 70%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .spec-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .meta-item {
+      font-size: 0.8rem;
+      color: var(--text-2);
+    }
+
+    .meta-item strong {
+      font-weight: 500;
+      color: var(--text-3);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+
+    .meta-item a { color: var(--vl); text-decoration: none; }
+    .meta-item a:hover { text-decoration: underline; }
+
+    /* Sections */
+    .spec-section {
+      margin-bottom: 3.5rem;
+      scroll-margin-top: 80px;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+    }
+
+    h2 .sec-num {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.05em;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 1.75rem 0 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    p {
+      font-size: 0.9rem;
+      color: var(--text-2);
+      line-height: 1.75;
+      margin-bottom: 1rem;
+    }
+
+    p strong { color: var(--text); font-weight: 500; }
+
+    ul, ol {
+      padding-left: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      font-size: 0.9rem;
+      color: var(--text-2);
+      line-height: 1.7;
+      margin-bottom: 0.25rem;
+    }
+
+    li strong { color: var(--text); font-weight: 500; }
+
+    a { color: var(--vl); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.82em;
+      color: var(--vl);
+      background: rgba(124,58,237,0.1);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      border: 1px solid rgba(124,58,237,0.15);
+    }
+
+    /* Code blocks */
+    pre {
+      background: #060710;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+    }
+
+    pre code {
+      display: block;
+      padding: 1.25rem 1.4rem;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: #c3e88d;
+      background: none;
+      border: none;
+      border-radius: 0;
+      white-space: pre;
+    }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; margin: 1rem 0 1.5rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead tr {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border-h);
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 0.9rem;
+      color: var(--text-3);
+      font-weight: 500;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.55rem 0.9rem;
+      color: var(--text-2);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+
+    td:first-child {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: var(--vl);
+      white-space: nowrap;
+    }
+
+    td:nth-child(2) {
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      color: var(--cl);
+      white-space: nowrap;
+    }
+
+    td:nth-child(3) {
+      white-space: nowrap;
+    }
+
+    .req-yes {
+      color: #86efac;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    .req-no {
+      color: var(--text-3);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+    }
+
+    tbody tr:hover { background: rgba(255,255,255,0.015); }
+
+    /* Blockquote */
+    blockquote {
+      border-left: 2px solid var(--v);
+      padding: 0.75rem 1.25rem;
+      margin: 1rem 0 1.5rem;
+      background: rgba(124,58,237,0.04);
+      border-radius: 0 6px 6px 0;
+    }
+
+    blockquote p {
+      color: var(--text-2);
+      font-style: italic;
+      margin: 0;
+    }
+
+    /* Rule */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* Note / callout */
+    .note {
+      background: rgba(6,182,212,0.05);
+      border: 1px solid rgba(6,182,212,0.2);
+      border-radius: 7px;
+      padding: 0.9rem 1.1rem;
+      margin: 1rem 0 1.5rem;
+      font-size: 0.85rem;
+      color: var(--cl);
+    }
+
+    /* Back link */
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--text-3);
+      text-decoration: none;
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .back:hover { color: var(--text-2); text-decoration: none; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { display: none; }
+      main { padding: 2rem 1.25rem 4rem; }
+      .spec-title { font-size: 1.7rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-pip"></span>
+    PMF
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="https://github.com/SimplyLiz/pmf-spec/blob/main/schema/pmf-1.0.schema.json" target="_blank">Schema</a></li>
+    <li><a href="https://github.com/SimplyLiz/pmf-spec/blob/main/examples/synthwave-example.pmf" target="_blank">Example</a></li>
+    <li><a href="https://github.com/SimplyLiz/pmf-spec" target="_blank">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+
+  <aside>
+    <div class="sidebar-label">Contents</div>
+    <ul class="sidebar-nav">
+      <li><a href="#s1">1. What PMF Is</a></li>
+      <li><a href="#s2">2. Why PMF Exists</a></li>
+      <li><a href="#s3">3. Design Principles</a></li>
+      <ul class="sub">
+        <li><a href="#s3-1">3.1 Musical Vocabulary</a></li>
+        <li><a href="#s3-2">3.2 Dual Representation</a></li>
+        <li><a href="#s3-3">3.3 Summary First</a></li>
+        <li><a href="#s3-4">3.4 Layered Depth</a></li>
+        <li><a href="#s3-5">3.5 ABC for Notes</a></li>
+        <li><a href="#s3-6">3.6 Engine-Agnostic Core</a></li>
+      </ul>
+      <li><a href="#s4">4. Top-Level Structure</a></li>
+      <li><a href="#s5">5. Field Reference</a></li>
+      <ul class="sub">
+        <li><a href="#s5-1">5.1 Root</a></li>
+        <li><a href="#s5-2">5.2 identity</a></li>
+        <li><a href="#s5-3">5.3 render_key</a></li>
+        <li><a href="#s5-4">5.4 harmony</a></li>
+        <li><a href="#s5-5">5.5 melody</a></li>
+        <li><a href="#s5-6">5.6 arrangement</a></li>
+        <li><a href="#s5-7">5.7 voices</a></li>
+        <li><a href="#s5-8">5.8 fx</a></li>
+        <li><a href="#s5-9">5.9 mix</a></li>
+        <li><a href="#s5-10">5.10 extensions</a></li>
+      </ul>
+      <li><a href="#s6">6. Summary Generation</a></li>
+      <li><a href="#s7">7. AI Consumption Guide</a></li>
+      <li><a href="#s8">8. Round-Trip Contract</a></li>
+      <li><a href="#s9">9. Versioning</a></li>
+      <li><a href="#s10">10. Complete Example</a></li>
+      <li><a href="#s11">11. What PMF Is Not</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <a href="index.html" class="back">← Back to PMF</a>
+
+    <div class="spec-header">
+      <div class="spec-eyebrow">Specification</div>
+      <h1 class="spec-title">Procedural Music Format</h1>
+      <div class="spec-meta">
+        <div class="meta-item"><strong>Version</strong>1.0</div>
+        <div class="meta-item"><strong>Extension</strong>.pmf</div>
+        <div class="meta-item"><strong>Encoding</strong>JSON (UTF-8)</div>
+        <div class="meta-item"><strong>Schema</strong><a href="https://github.com/SimplyLiz/pmf-spec/blob/main/schema/pmf-1.0.schema.json" target="_blank">pmf-1.0.schema.json</a></div>
+        <div class="meta-item"><strong>Status</strong>Stable</div>
+      </div>
+    </div>
+
+    <!-- 1 -->
+    <div class="spec-section" id="s1">
+      <h2><span class="sec-num">01</span> What PMF Is</h2>
+      <p>PMF is a JSON-based format for describing procedural music compositions in a way that is immediately useful to any tool powered by an LLM or API. It is the serialization layer between a generative music engine and the wider world of AI tooling, game editors, web apps, and human inspection.</p>
+      <p>A <code>.pmf</code> file fully describes a composition — not the rendered audio, but the parameters, structure, and intent that produced it. Any tool that can read JSON can read a PMF file. Any LLM that knows music theory can reason about one without documentation.</p>
+    </div>
+
+    <!-- 2 -->
+    <div class="spec-section" id="s2">
+      <h2><span class="sec-num">02</span> Why PMF Exists</h2>
+      <p>Existing music formats solve different problems:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Format</th><th>Designed for</th><th>Why it fails here</th></tr></thead>
+          <tbody>
+            <tr><td>MIDI</td><td>Performance capture</td><td>Binary; every note is a timed event, no compositional intent</td></tr>
+            <tr><td>MusicXML</td><td>Score printing</td><td>XML verbosity destroys LLM sequence efficiency</td></tr>
+            <tr><td>ABC Notation</td><td>Score transcription</td><td>Note-level only; no seed, mood, or generative parameters</td></tr>
+            <tr><td>ChordPro</td><td>Chord sheets</td><td>No melody, arrangement, or voice detail</td></tr>
+            <tr><td>YNote / HNote</td><td>LLM note generation</td><td>Note sequences only; no composition structure</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>None of them describe <em>how to generate</em> music — only music that already exists. PMF fills that gap.</p>
+      <p>PMF is the right format when:</p>
+      <ul>
+        <li>A composition is produced by a generative engine from a seed or parameters</li>
+        <li>You want an LLM to inspect, describe, modify, or reproduce it</li>
+        <li>You want any tool — game editor, web app, CLI — to read the same file</li>
+      </ul>
+    </div>
+
+    <!-- 3 -->
+    <div class="spec-section" id="s3">
+      <h2><span class="sec-num">03</span> Design Principles</h2>
+
+      <h3 id="s3-1">3.1 Musical Vocabulary First</h3>
+      <p>Every numeric value that has a standard musical name is given that name. An LLM has been trained on music theory; use it.</p>
+      <pre><code>"key": "A minor",
+"progression": ["Am", "F", "C", "G"],
+"progression_degrees": ["i", "VI", "III", "VII"],
+"bpm_label": "mid-tempo",
+"reverb_room": "warm medium hall"</code></pre>
+
+      <h3 id="s3-2">3.2 Dual Representation</h3>
+      <p>Machine-precise values and semantic labels coexist. Neither is omitted.</p>
+      <pre><code>"bpm": 128.0,
+"bpm_label": "mid-tempo",
+"key_shift_semitones": 0,
+"key": "A minor",
+"delay_timing": "dotted_eighth",
+"delay_timing_label": "3 × sixteenth note at 128 BPM ≈ 140ms"</code></pre>
+
+      <h3 id="s3-3">3.3 Summary First</h3>
+      <p>The top-level <code>summary</code> field is a single human-readable paragraph generated by the engine at render time. An LLM can read the summary alone and understand the composition. Everything below is supporting detail.</p>
+
+      <h3 id="s3-4">3.4 Layered Depth</h3>
+      <p>Fields are ordered from high-level to precise. A tool that only needs to describe or compare tracks reads <code>summary</code> and <code>identity</code>. A tool that needs to reconstruct reads everything.</p>
+
+      <h3 id="s3-5">3.5 ABC for Note Sequences</h3>
+      <p>Melody motifs are expressed in ABC notation — the format with the strongest LLM research backing for note-level data (ChatMusician, ABC-Eval 2024). PMF does not invent a new note syntax.</p>
+
+      <h3 id="s3-6">3.6 Engine-Agnostic Core, Engine-Specific Detail</h3>
+      <p>The top sections (<code>summary</code>, <code>identity</code>, <code>harmony</code>, <code>melody</code>, <code>arrangement</code>) are generic — valid for any procedural music engine. The <code>voices</code>, <code>fx</code>, and <code>mix</code> sections carry engine-specific detail and are identified via the <code>engine</code> field at the root.</p>
+    </div>
+
+    <!-- 4 -->
+    <div class="spec-section" id="s4">
+      <h2><span class="sec-num">04</span> Top-Level Structure</h2>
+      <pre><code>{
+  "pmf_version": "1.0",
+  "engine": "&lt;engine-name&gt;",
+  "engine_version": "&lt;semver&gt;",
+
+  "summary": "&lt;natural language paragraph&gt;",
+
+  "identity":     { ... },
+  "render_key":   { ... },
+  "harmony":      { ... },
+  "melody":       { ... },
+  "arrangement":  { ... },
+  "voices":       { ... },
+  "fx":           { ... },
+  "mix":          { ... }
+}</code></pre>
+      <p><code>pmf_version</code>, <code>engine</code>, <code>summary</code>, <code>identity</code>, and <code>render_key</code> are required. All other sections are optional — a minimal PMF file is valid with just those five.</p>
+    </div>
+
+    <!-- 5 -->
+    <div class="spec-section" id="s5">
+      <h2><span class="sec-num">05</span> Field Reference</h2>
+
+      <h3 id="s5-1">5.1 Root</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>pmf_version</td><td>string</td><td><span class="req-yes">yes</span></td><td>PMF format version. Currently <code>"1.0"</code></td></tr>
+          <tr><td>engine</td><td>string</td><td><span class="req-yes">yes</span></td><td>Name of the generating engine (e.g. <code>"synthwave_engine"</code>)</td></tr>
+          <tr><td>engine_version</td><td>string</td><td><span class="req-no">no</span></td><td>Semver of the engine that wrote this file</td></tr>
+          <tr><td>summary</td><td>string</td><td><span class="req-yes">yes</span></td><td>Engine-generated natural language description of the composition</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 id="s5-2">5.2 <code>identity</code></h3>
+      <p>Who this composition is and what it sounds like.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>seed</td><td>u64</td><td><span class="req-yes">yes</span></td><td>The seed that produced this composition</td></tr>
+          <tr><td>mood</td><td>string</td><td><span class="req-no">no</span></td><td>Mood preset name (engine-defined)</td></tr>
+          <tr><td>bpm</td><td>f32</td><td><span class="req-yes">yes</span></td><td>Tempo in beats per minute</td></tr>
+          <tr><td>bpm_label</td><td>string</td><td><span class="req-no">no</span></td><td>Human label for the tempo (e.g. <code>"mid-tempo"</code>)</td></tr>
+          <tr><td>key</td><td>string</td><td><span class="req-yes">yes</span></td><td>Key name in standard notation (e.g. <code>"A minor"</code>, <code>"F# minor"</code>)</td></tr>
+          <tr><td>key_type</td><td>string</td><td><span class="req-no">no</span></td><td>Scale type: <code>"natural_minor"</code>, <code>"harmonic_minor"</code>, <code>"major"</code>, etc.</td></tr>
+          <tr><td>key_shift_semitones</td><td>i8</td><td><span class="req-no">no</span></td><td>Semitone offset from the engine's reference key</td></tr>
+          <tr><td>bars</td><td>u32</td><td><span class="req-yes">yes</span></td><td>Number of bars in the loop</td></tr>
+          <tr><td>time_signature</td><td>string</td><td><span class="req-no">no</span></td><td>Time signature (default <code>"4/4"</code>)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 id="s5-3">5.3 <code>render_key</code></h3>
+      <p>The exact rendering context. Together with <code>identity.seed</code> and <code>pmf_version</code>, this is sufficient to reproduce byte-identical output from a compatible engine version.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>sample_rate</td><td>u32</td><td><span class="req-yes">yes</span></td><td>Audio sample rate in Hz</td></tr>
+          <tr><td>bars</td><td>u32</td><td><span class="req-yes">yes</span></td><td>Bar count used for this render (must match <code>identity.bars</code>)</td></tr>
+          <tr><td>stem_format</td><td>string</td><td><span class="req-yes">yes</span></td><td>Channel layout: <code>"mono"</code>, <code>"stereo"</code>, or engine-defined variants</td></tr>
+          <tr><td>loop_mode</td><td>string</td><td><span class="req-yes">yes</span></td><td><code>"looped"</code> or <code>"finite"</code></td></tr>
+          <tr><td>engine_version_major</td><td>u32</td><td><span class="req-yes">yes</span></td><td>Major version of the engine — determinism is stable within a major version</td></tr>
+          <tr><td>palette_pack_version</td><td>u32</td><td><span class="req-no">no</span></td><td>Version of the palette pack used, if the engine supports swappable packs</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 id="s5-4">5.4 <code>harmony</code></h3>
+      <p>The harmonic structure of the composition.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>progression</td><td>string[]</td><td><span class="req-no">no</span></td><td>Chord names in order (e.g. <code>["Am", "F", "C", "G"]</code>)</td></tr>
+          <tr><td>progression_degrees</td><td>string[]</td><td><span class="req-no">no</span></td><td>Scale degrees (e.g. <code>["i", "VI", "III", "VII"]</code>)</td></tr>
+          <tr><td>progression_label</td><td>string</td><td><span class="req-no">no</span></td><td>Human description (e.g. <code>"classic minor turnaround"</code>)</td></tr>
+          <tr><td>key_root_midi</td><td>u8</td><td><span class="req-no">no</span></td><td>MIDI note number of the key root (A4=69)</td></tr>
+          <tr><td>bass_pattern</td><td>i8[]</td><td><span class="req-no">no</span></td><td>Per-beat interval offsets from chord root in semitones</td></tr>
+          <tr><td>bass_pattern_label</td><td>string</td><td><span class="req-no">no</span></td><td>Human description (e.g. <code>"root-root-fifth-root"</code>)</td></tr>
+          <tr><td>arp_pattern</td><td>string</td><td><span class="req-no">no</span></td><td>Arp pattern name (engine-defined)</td></tr>
+          <tr><td>arp_pattern_label</td><td>string</td><td><span class="req-no">no</span></td><td>Human description of the arp movement</td></tr>
+          <tr><td>arp_bar_order</td><td>u8[]</td><td><span class="req-no">no</span></td><td>Which arp pattern index plays each bar</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 id="s5-5">5.5 <code>melody</code></h3>
+      <p>Named melodic motifs. Keys are string identifiers (<code>"motif_a"</code>, <code>"motif_b"</code>, or any name the engine uses). Each motif object:</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>abc</td><td>string</td><td><span class="req-yes">yes</span></td><td>Motif body in ABC notation (no headers — key comes from <code>identity.key</code>)</td></tr>
+          <tr><td>intervals_semitones</td><td>i8[]</td><td><span class="req-no">no</span></td><td>Interval steps in semitones (for LLM reasoning without ABC parsing)</td></tr>
+          <tr><td>rhythm</td><td>string</td><td><span class="req-no">no</span></td><td>Human-readable rhythm description</td></tr>
+          <tr><td>label</td><td>string</td><td><span class="req-no">no</span></td><td>Human description of the motif's musical character</td></tr>
+          <tr><td>active_bars</td><td>u8[]</td><td><span class="req-no">no</span></td><td>Bar indices where this motif plays</td></tr>
+        </tbody>
+      </table></div>
+      <div class="note">ABC usage: only the melody body is encoded — no headers, no key signature, no meter. Those come from <code>identity</code>. Example: <code>"A2 c B A4"</code> — two beats on A, then C, B, A.</div>
+
+      <h3 id="s5-6">5.6 <code>arrangement</code></h3>
+      <p>How the composition unfolds bar by bar.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>template</td><td>string</td><td><span class="req-no">no</span></td><td>Arrangement template name (engine-defined)</td></tr>
+          <tr><td>sections</td><td>object[]</td><td><span class="req-no">no</span></td><td>Named sections with bar ranges and active stems</td></tr>
+          <tr><td>melody_on_bars</td><td>u8[]</td><td><span class="req-no">no</span></td><td>Bar indices where melody plays</td></tr>
+          <tr><td>bar_gains</td><td>object</td><td><span class="req-no">no</span></td><td>Per-stem float arrays — gain multiplier per bar per stem</td></tr>
+        </tbody>
+      </table></div>
+      <p>Each section object:</p>
+      <pre><code>{ "name": "Intro", "bars": [0, 1], "stems_active": ["drums", "bass"] }</code></pre>
+      <p><code>bar_gains</code> keys are stem names. Values are arrays with one entry per bar. Gain semantics: <code>0.0</code> = silent, <code>1.0</code> = full, <code>&gt;1.0</code> = boosted.</p>
+
+      <h3 id="s5-7">5.7 <code>voices</code></h3>
+      <p>Per-voice synthesis parameters. Keys are voice names. Content is engine-defined — PMF specifies no fixed schema, only the convention that semantic labels accompany raw values.</p>
+
+      <h3 id="s5-8">5.8 <code>fx</code></h3>
+      <p>Post-processing chain. Common sub-keys: <code>reverb</code>, <code>delay</code>, <code>sidechain</code>, <code>limiter</code>. Engine-defined.</p>
+
+      <h3 id="s5-9">5.9 <code>mix</code></h3>
+      <p>Master mix parameters: stem volume presets, tween timing, reactive control tables. Engine-defined.</p>
+
+      <h3 id="s5-10">5.10 <code>extensions</code></h3>
+      <p>Optional. Engines may attach custom data here under a namespaced key to avoid polluting the core namespace. The key should match <code>engine</code> at the root.</p>
+      <pre><code>"extensions": {
+  "my_engine": {
+    "custom_field": "value"
+  }
+}</code></pre>
+    </div>
+
+    <!-- 6 -->
+    <div class="spec-section" id="s6">
+      <h2><span class="sec-num">06</span> Summary Generation</h2>
+      <p>The <code>summary</code> field is computed by the engine — not written by hand and not filled by an external AI. A good PMF summary answers in one paragraph:</p>
+      <ol>
+        <li>What does it sound like overall? (tempo, mood, key, genre character)</li>
+        <li>How does it unfold? (arrangement arc, when stems enter or drop)</li>
+        <li>What makes it distinctive? (motif character, notable FX, anything unusual)</li>
+      </ol>
+      <p><strong>Template:</strong></p>
+      <blockquote><p>{tempo_label} {mood} track in {key} at {bpm} BPM. {arrangement_arc}. {melody_description}. {fx_highlight_if_notable}.</p></blockquote>
+      <p><strong>Example:</strong></p>
+      <blockquote><p>Mid-tempo NightDrive track in A minor at 128 BPM. Sparse intro over bars 0–1 (drums and bass only) builds through a melancholy i–VI–III–VII progression to full mix by bar 4. Ascending minor-third motif enters at bar 4 and resolves with a pentatonic descent in bar 6. Warm medium-hall reverb and dotted-eighth slap delay on the lead.</p></blockquote>
+      <p><strong>Rules:</strong></p>
+      <ul>
+        <li>Use musical vocabulary, not parameter names</li>
+        <li>Mention the arrangement arc if non-trivial</li>
+        <li>Keep it under 80 words</li>
+        <li>Do not mention seed, sample rate, or version numbers</li>
+      </ul>
+    </div>
+
+    <!-- 7 -->
+    <div class="spec-section" id="s7">
+      <h2><span class="sec-num">07</span> AI Consumption Guide</h2>
+      <p>When an LLM reads a PMF file, read in this order:</p>
+      <ol>
+        <li><strong><code>summary</code> first.</strong> Gestalt in one paragraph. Stop here for description or comparison tasks.</li>
+        <li><strong><code>identity</code> and <code>harmony</code>.</strong> Key, BPM, progression, and mood determine character.</li>
+        <li><strong><code>arrangement.sections</code> and <code>bar_gains</code>.</strong> Structure and dynamics.</li>
+        <li><strong><code>melody</code> motifs.</strong> ABC body + <code>label</code> for melodic content.</li>
+        <li><strong><code>voices</code>, <code>fx</code>, <code>mix</code>.</strong> Only for synthesis modification or exact reconstruction.</li>
+      </ol>
+      <p><strong>For modification tasks:</strong> change <code>identity</code>, <code>harmony</code>, or <code>melody</code> fields. Re-submit to the engine. Do not hand-edit <code>bar_gains</code> unless the arrangement template changes — the engine owns those values.</p>
+      <p><strong>For comparison tasks:</strong> <code>identity.mood</code>, <code>harmony.progression_degrees</code>, <code>arrangement.sections</code>, and <code>melody.*.label</code> are the most semantically rich fields for clustering or ranking.</p>
+      <p><strong>For reconstruction:</strong> <code>identity.seed</code> + <code>render_key</code> + <code>engine</code> + <code>engine_version_major</code> is the minimum key. All other fields are derived — the engine ignores them on exact round-trip.</p>
+    </div>
+
+    <!-- 8 -->
+    <div class="spec-section" id="s8">
+      <h2><span class="sec-num">08</span> Round-Trip Contract</h2>
+      <p><strong>Exact round-trip</strong> (byte-identical audio): <code>identity.seed</code> + <code>render_key.*</code> + <code>engine</code> + <code>engine_version_major</code> unchanged. Engine re-derives everything from the seed.</p>
+      <p><strong>Approximate round-trip</strong> (musically consistent, different PCM): engine accepts an edited PMF with changed <code>identity</code> or <code>harmony</code> fields, renders a new composition consistent with those params.</p>
+      <p>Engine support for approximate round-trip is declared per-engine. Engines that do not support it may ignore all fields except the reconstruction key.</p>
+    </div>
+
+    <!-- 9 -->
+    <div class="spec-section" id="s9">
+      <h2><span class="sec-num">09</span> Versioning</h2>
+      <p><code>pmf_version</code> follows semver. The current version is <code>1.0</code>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Bump</th><th>What changes</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Patch</td><td>Bug fixes in this document</td><td>No format change</td></tr>
+          <tr><td>Minor</td><td>New optional fields added</td><td>Existing readers ignore unknown fields</td></tr>
+          <tr><td>Major</td><td>Required fields changed or removed</td><td>Readers must warn on mismatch</td></tr>
+        </tbody>
+      </table></div>
+      <p>Field removal is always a major bump. Field rename is always a major bump.</p>
+    </div>
+
+    <!-- 10 -->
+    <div class="spec-section" id="s10">
+      <h2><span class="sec-num">10</span> Complete Example</h2>
+      <p>See <a href="https://github.com/SimplyLiz/pmf-spec/blob/main/examples/synthwave-example.pmf" target="_blank">examples/synthwave-example.pmf</a> for a full annotated file.</p>
+      <p>Minimal valid file: <a href="https://github.com/SimplyLiz/pmf-spec/blob/main/examples/minimal.pmf" target="_blank">examples/minimal.pmf</a></p>
+    </div>
+
+    <!-- 11 -->
+    <div class="spec-section" id="s11">
+      <h2><span class="sec-num">11</span> What PMF Is Not</h2>
+      <ul>
+        <li><strong>Not an audio format.</strong> Use WAV or OGG for rendered audio.</li>
+        <li><strong>Not a score format.</strong> PMF does not encode every note in the final render. Use MIDI export for that.</li>
+        <li><strong>Not a DAW project format.</strong> No clip editing, automation lanes, or plugin state.</li>
+        <li><strong>Not a streaming format.</strong> PMF is a snapshot, not a real-time exchange protocol.</li>
+        <li><strong>Not a replacement for MIDI.</strong> PMF and MIDI are complementary — an engine can export both from the same render.</li>
+      </ul>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Highlight active sidebar link on scroll
+  const sections = document.querySelectorAll('.spec-section[id]');
+  const links    = document.querySelectorAll('.sidebar-nav a');
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
