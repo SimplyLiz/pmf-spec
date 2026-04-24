@@ -1,0 +1,66 @@
+{
+  "name": "@procedural-audio-format/pmf",
+  "version": "1.0.0",
+  "description": "Procedural Music Format — TypeScript library and CLI validator",
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "bin": {
+    "pmf": "./dist/esm/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json",
+    "test": "node --import tsx/esm --test src/*.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "pmf",
+    "procedural-music",
+    "procedural-audio",
+    "music-format",
+    "validator",
+    "json-schema"
+  ],
+  "author": "Lisa Welsch <lisa@tastehub.io>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SimplyLiz/pmf-spec.git",
+    "directory": "packages/pmf"
+  },
+  "homepage": "https://SimplyLiz.github.io/pmf-spec/",
+  "bugs": "https://github.com/SimplyLiz/pmf-spec/issues",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "sideEffects": false,
+  "dependencies": {
+    "ajv": "^8.17.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.0"
+  }
+}

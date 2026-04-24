@@ -81,9 +81,7 @@ A `.pmf` file has a generic core (readable by any tool) and optional engine-spec
 
 ## Status
 
-**Draft 0.1.** The format is functional and in active use by [synthwave_engine](https://github.com/SimplyLiz/synthwave-engine). Not yet at 1.0 — the spec may change based on feedback from other implementations.
-
-Reserve 1.0 for after at least two engines have round-tripped real files against it.
+**v1.0.** The format is stable and in active use by [synthwave_engine](https://github.com/SimplyLiz/synthwave-engine).
 
 ---
 
