@@ -1,0 +1,17 @@
+title: PMF — Procedural Music Format
+description: An open JSON-based format for procedural and AI-assisted music composition data.
+theme: minima
+url: "https://SimplyLiz.github.io"
+baseurl: "/pmf-spec"
+
+header_pages:
+  - SPEC.md
+  - docs/rationale.md
+  - docs/roundtrip.md
+  - docs/extensions.md
+
+minima:
+  skin: auto
+
+plugins:
+  - jekyll-seo-tag

@@ -1,0 +1,12 @@
+{
+  "_invalid_reason": "Missing required field: render_key",
+  "pmf_version": "0.1",
+  "engine": "test-engine",
+  "summary": "A track with no render key.",
+  "identity": {
+    "seed": 1,
+    "bpm": 120.0,
+    "key": "C major",
+    "bars": 4
+  }
+}

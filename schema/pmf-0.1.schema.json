@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://SimplyLiz.github.io/pmf-spec/schema/pmf-0.1.schema.json",
+  "title": "Procedural Music Format (PMF) 0.1",
+  "description": "Schema for PMF 0.1 composition files. An open format for procedural and AI-assisted music composition data.",
+  "type": "object",
+  "required": ["pmf_version", "engine", "summary", "identity", "render_key"],
+  "properties": {
+    "pmf_version": {
+      "type": "string",
+      "const": "0.1",
+      "description": "PMF format version."
+    },
+    "engine": {
+      "type": "string",
+      "description": "Name of the generating engine (e.g. 'synthwave_engine')."
+    },
+    "engine_version": {
+      "type": "string",
+      "description": "Semver of the engine that wrote this file."
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 500,
+      "description": "Engine-generated natural language description of the composition. Under 80 words."
+    },
+    "identity": {
+      "type": "object",
+      "description": "Who this composition is and what it sounds like.",
+      "required": ["seed", "bpm", "key", "bars"],
+      "properties": {
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "The seed that produced this composition."
+        },
+        "mood": {
+          "type": "string",
+          "description": "Mood preset name (engine-defined)."
+        },
+        "bpm": {
+          "type": "number",
+          "minimum": 20,
+          "maximum": 400,
+          "description": "Tempo in beats per minute."
+        },
+        "bpm_label": {
+          "type": "string",
+          "description": "Human label for the tempo (e.g. 'mid-tempo', 'driving')."
+        },
+        "key": {
+          "type": "string",
+          "description": "Key name in standard notation (e.g. 'A minor', 'F# minor', 'C major')."
+        },
+        "key_type": {
+          "type": "string",
+          "description": "Scale type: natural_minor, harmonic_minor, major, pentatonic, etc."
+        },
+        "key_shift_semitones": {
+          "type": "integer",
+          "minimum": -24,
+          "maximum": 24,
+          "description": "Semitone offset from the engine's reference key."
+        },
+        "bars": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of bars in the loop."
+        },
+        "time_signature": {
+          "type": "string",
+          "description": "Time signature. Default: '4/4'."
+        }
+      },
+      "additionalProperties": false
+    },
+    "render_key": {
+      "type": "object",
+      "description": "Exact rendering context. Required for byte-identical reconstruction.",
+      "required": ["sample_rate", "bars", "stem_format", "loop_mode", "engine_version_major"],
+      "properties": {
+        "sample_rate": {
+          "type": "integer",
+          "minimum": 8000,
+          "maximum": 192000,
+          "description": "Audio sample rate in Hz."
+        },
+        "bars": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Bar count used for this render. Must match identity.bars."
+        },
+        "stem_format": {
+          "type": "string",
+          "description": "Channel layout: 'mono', 'stereo', or engine-defined variant."
+        },
+        "loop_mode": {
+          "type": "string",
+          "enum": ["looped", "finite"],
+          "description": "Whether the composition was rendered as a seamless loop."
+        },
+        "engine_version_major": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Major semver component of the engine. Determinism is stable within a major version."
+        },
+        "palette_pack_version": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Version of the palette pack used, if the engine supports swappable packs."
+        }
+      },
+      "additionalProperties": false
+    },
+    "harmony": {
+      "type": "object",
+      "description": "Harmonic structure of the composition.",
+      "properties": {
+        "progression": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Chord names in order (e.g. ['Am', 'F', 'C', 'G'])."
+        },
+        "progression_degrees": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Scale degrees for each chord (e.g. ['i', 'VI', 'III', 'VII'])."
+        },
+        "progression_label": {
+          "type": "string",
+          "description": "Human description of the progression character."
+        },
+        "key_root_midi": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 127,
+          "description": "MIDI note number of the key root (A4=69)."
+        },
+        "bass_pattern": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": -24, "maximum": 24 },
+          "description": "Per-beat interval offsets from chord root in semitones."
+        },
+        "bass_pattern_label": {
+          "type": "string",
+          "description": "Human description of the bass movement (e.g. 'root-root-fifth-root')."
+        },
+        "arp_pattern": {
+          "type": "string",
+          "description": "Arp pattern name (engine-defined)."
+        },
+        "arp_pattern_label": {
+          "type": "string",
+          "description": "Human description of the arp movement."
+        },
+        "arp_bar_order": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "description": "Which arp pattern index plays each bar."
+        }
+      }
+    },
+    "melody": {
+      "type": "object",
+      "description": "Named melodic motifs. Keys are motif identifiers (motif_a, motif_b, theme, etc.).",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["abc"],
+        "properties": {
+          "abc": {
+            "type": "string",
+            "description": "Motif body in ABC notation. No headers — key context comes from identity.key."
+          },
+          "intervals_semitones": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "Interval steps in semitones. Allows LLM reasoning without ABC parsing."
+          },
+          "rhythm": {
+            "type": "string",
+            "description": "Human-readable rhythm description (e.g. 'half quarter quarter whole')."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human description of the motif's musical character."
+          },
+          "active_bars": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0 },
+            "description": "Bar indices where this motif plays."
+          }
+        }
+      }
+    },
+    "arrangement": {
+      "type": "object",
+      "description": "How the composition unfolds bar by bar.",
+      "properties": {
+        "template": {
+          "type": "string",
+          "description": "Arrangement template name (engine-defined)."
+        },
+        "sections": {
+          "type": "array",
+          "description": "Named sections with bar ranges and active stems.",
+          "items": {
+            "type": "object",
+            "required": ["name", "bars"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Section name (e.g. 'Intro', 'Groove', 'Breakdown')."
+              },
+              "bars": {
+                "type": "array",
+                "items": { "type": "integer", "minimum": 0 },
+                "minItems": 2,
+                "maxItems": 2,
+                "description": "[start_bar, end_bar] inclusive."
+              },
+              "stems_active": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Which stems are active in this section."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "melody_on_bars": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 },
+          "description": "Bar indices where melody plays."
+        },
+        "bar_gains": {
+          "type": "object",
+          "description": "Per-stem gain arrays. One float per bar. 0.0=silent, 1.0=full, >1.0=boosted.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "minimum": 0.0,
+              "maximum": 2.0
+            }
+          }
+        }
+      }
+    },
+    "voices": {
+      "type": "object",
+      "description": "Per-voice synthesis parameters. Engine-defined. Keys are voice names."
+    },
+    "fx": {
+      "type": "object",
+      "description": "Post-processing chain. Engine-defined. Common keys: reverb, delay, sidechain, limiter."
+    },
+    "mix": {
+      "type": "object",
+      "description": "Master mix parameters. Engine-defined. Stem volumes, reactive tiers, tween timing."
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Engine-specific extensions. Each key should match the engine name to avoid collisions.",
+      "additionalProperties": {
+        "type": "object"
+      }
+    }
+  }
+}

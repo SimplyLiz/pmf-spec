@@ -1,0 +1,16 @@
+{
+  "_invalid_reason": "identity is missing required fields: bpm, key, bars",
+  "pmf_version": "0.1",
+  "engine": "test-engine",
+  "summary": "A track with incomplete identity.",
+  "identity": {
+    "seed": 1
+  },
+  "render_key": {
+    "sample_rate": 44100,
+    "bars": 4,
+    "stem_format": "stereo",
+    "loop_mode": "looped",
+    "engine_version_major": 1
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "pmf_version": "0.1",
+  "engine": "synthwave_engine",
+  "engine_version": "0.1.0",
+
+  "summary": "Mid-tempo NightDrive track in A minor at 128 BPM. Sparse intro over bars 0–1 builds through a melancholy i–VI–III–VII progression to full mix by bar 4. Ascending minor-third motif enters at bar 4 and resolves with a pentatonic descent in bars 6–7. Warm medium-hall reverb and dotted-eighth slap delay on the lead.",
+
+  "identity": {
+    "seed": 42,
+    "mood": "NightDrive",
+    "bpm": 128.0,
+    "bpm_label": "mid-tempo synthwave",
+    "key": "A minor",
+    "key_type": "natural_minor",
+    "key_shift_semitones": 0,
+    "bars": 8,
+    "time_signature": "4/4"
+  },
+
+  "render_key": {
+    "sample_rate": 44100,
+    "bars": 8,
+    "stem_format": "stereo_pad_mono_rest",
+    "loop_mode": "looped",
+    "engine_version_major": 0
+  },
+
+  "harmony": {
+    "progression": ["Am", "F", "C", "G"],
+    "progression_degrees": ["i", "VI", "III", "VII"],
+    "progression_label": "classic minor turnaround",
+    "key_root_midi": 69,
+    "bass_pattern": [0, 0, 7, 0],
+    "bass_pattern_label": "root-root-fifth-root",
+    "arp_pattern": "up_skip",
+    "arp_pattern_label": "ascending, skips chord third",
+    "arp_bar_order": [0, 1, 2, 3, 0, 1, 3, 2]
+  },
+
+  "melody": {
+    "motif_a": {
+      "abc": "A2 c B A4",
+      "intervals_semitones": [0, 3, 2, -2],
+      "rhythm": "half quarter quarter whole",
+      "label": "ascending minor third, falling resolution",
+      "active_bars": [4, 5]
+    },
+    "motif_b": {
+      "abc": "E2 A2 G F E4",
+      "intervals_semitones": [0, 5, -2, -2, -2],
+      "rhythm": "quarter quarter eighth eighth whole",
+      "label": "pentatonic descent",
+      "active_bars": [6, 7]
+    }
+  },
+
+  "arrangement": {
+    "template": "IntroGrooveLift",
+    "sections": [
+      { "name": "Intro",  "bars": [0, 1], "stems_active": ["drums", "bass"] },
+      { "name": "Groove", "bars": [2, 3], "stems_active": ["drums", "bass", "pad"] },
+      { "name": "Lift",   "bars": [4, 7], "stems_active": ["drums", "bass", "pad", "lead"] }
+    ],
+    "melody_on_bars": [4, 5, 6, 7],
+    "bar_gains": {
+      "drums": [0.60, 0.70, 0.85, 0.85, 0.95, 0.95, 1.00, 1.00],
+      "bass":  [0.50, 0.60, 0.75, 0.75, 0.85, 0.85, 0.95, 0.95],
+      "pad":   [0.00, 0.00, 0.70, 0.80, 1.00, 1.00, 1.05, 1.05],
+      "lead":  [0.00, 0.00, 0.00, 0.00, 0.85, 0.90, 0.95, 1.00]
+    }
+  },
+
+  "voices": {
+    "kick": {
+      "pattern": "four_on_floor",
+      "accent_on_bar_1": true,
+      "accent_gain": 1.2,
+      "freq_start_hz": 90.0,
+      "freq_end_hz": 40.0,
+      "pitch_drop_ms": 30.0
+    },
+    "snare": {
+      "pattern": "backbeat_2_4",
+      "fill_on_bar": 7,
+      "noise_ratio": 0.75,
+      "body_freq_hz": 200.0
+    },
+    "hat": {
+      "pattern": "eighth_note",
+      "offbeat_gain": 0.75
+    },
+    "bass": {
+      "waveform": "sawtooth",
+      "filter": "one_pole_lowpass",
+      "filter_cutoff_hz": 800.0,
+      "envelope": "attack_4ms_release_50ms"
+    },
+    "pad": {
+      "waveform": "sawtooth",
+      "voices_per_chord_tone": 3,
+      "detuning_cents": 7.0,
+      "detuning_label": "chorus spread",
+      "panning": "center_left_right",
+      "pan_law": "equal_power",
+      "filter": "one_pole_lowpass",
+      "envelope": "attack_250ms_release_350ms",
+      "lp_state_persists_across_bars": true
+    },
+    "lead": {
+      "waveform": "sawtooth",
+      "style": "arp_pluck",
+      "octave_above_chord": true,
+      "note_length": "sixteenth",
+      "envelope": "fast_attack_exp_decay"
+    }
+  },
+
+  "fx": {
+    "reverb": {
+      "room": "medium",
+      "room_label": "warm hall, mid-sized space",
+      "feedback": 0.82,
+      "damp": 0.40,
+      "stereo_width_samples": 23,
+      "applied_to": ["pad", "lead"]
+    },
+    "delay": {
+      "type": "slap",
+      "timing": "dotted_eighth",
+      "timing_label": "3 × sixteenth at 128 BPM ≈ 140ms",
+      "mix": 0.38,
+      "loop_aware": true,
+      "applied_to": ["lead"]
+    },
+    "sidechain": {
+      "source": "kick",
+      "release_ms": 340.0,
+      "release_label": "tempo-scaled: min(400ms, beat_duration × 0.85)",
+      "targets": {
+        "pad":  { "depth": 0.72 },
+        "bass": { "depth": 0.25 }
+      }
+    },
+    "limiter": {
+      "type": "soft_knee",
+      "rationale": "preserves loudness ordering between seeds; does not peak-normalize",
+      "per_stem": {
+        "drums": { "threshold": 0.75, "ceiling": 0.95 },
+        "bass":  { "threshold": 0.70, "ceiling": 0.90 },
+        "pad":   { "threshold": 0.65, "ceiling": 0.85 },
+        "lead":  { "threshold": 0.70, "ceiling": 0.90 }
+      }
+    }
+  },
+
+  "mix": {
+    "combo_tiers": [
+      { "tier": 0, "drums": 0.55, "bass": 0.45, "pad": 0.80, "lead": 0.75 },
+      { "tier": 1, "drums": 0.70, "bass": 0.60, "pad": 0.90, "lead": 0.85 },
+      { "tier": 2, "drums": 0.85, "bass": 0.75, "pad": 1.00, "lead": 0.95 },
+      { "tier": 3, "drums": 0.95, "bass": 0.85, "pad": 1.05, "lead": 1.00 },
+      { "tier": 4, "drums": 1.05, "bass": 0.95, "pad": 1.10, "lead": 1.05 }
+    ],
+    "tween_rise_ms": 300,
+    "tween_fall_ms": 700,
+    "tween_label": "asymmetric — loss reads softer than gain"
+  }
+}

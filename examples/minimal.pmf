@@ -1,0 +1,23 @@
+{
+  "pmf_version": "0.1",
+  "engine": "my-engine",
+  "engine_version": "1.0.0",
+
+  "summary": "Upbeat 4-bar loop in C major at 120 BPM.",
+
+  "identity": {
+    "seed": 1,
+    "bpm": 120.0,
+    "bpm_label": "moderate",
+    "key": "C major",
+    "bars": 4
+  },
+
+  "render_key": {
+    "sample_rate": 44100,
+    "bars": 4,
+    "stem_format": "stereo",
+    "loop_mode": "looped",
+    "engine_version_major": 1
+  }
+}

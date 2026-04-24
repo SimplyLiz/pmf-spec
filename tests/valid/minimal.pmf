@@ -1,0 +1,18 @@
+{
+  "pmf_version": "0.1",
+  "engine": "test-engine",
+  "summary": "A short loop for validation testing.",
+  "identity": {
+    "seed": 1,
+    "bpm": 120.0,
+    "key": "C major",
+    "bars": 2
+  },
+  "render_key": {
+    "sample_rate": 44100,
+    "bars": 2,
+    "stem_format": "stereo",
+    "loop_mode": "looped",
+    "engine_version_major": 1
+  }
+}
