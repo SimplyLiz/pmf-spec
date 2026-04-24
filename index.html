@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMF — Procedural Music Format</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      line-height: 1.6;
+    }
+
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header {
+      border-bottom: 1px solid #21262d;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header .wordmark {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #e6edf3;
+      letter-spacing: -0.02em;
+    }
+
+    header nav { display: flex; gap: 1.5rem; font-size: 0.9rem; color: #8b949e; }
+    header nav a { color: #8b949e; }
+    header nav a:hover { color: #e6edf3; text-decoration: none; }
+
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #e6edf3 0%, #8b949e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .tagline {
+      font-size: 1.2rem;
+      color: #8b949e;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 3rem; }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid;
+    }
+    .badge-blue  { background: #1f3a5f; color: #58a6ff; border-color: #1f6feb; }
+    .badge-green { background: #1a3a2a; color: #3fb950; border-color: #238636; }
+
+    .cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 4rem; }
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: #238636; color: #fff; border: 1px solid #2ea043; }
+    .btn-secondary { background: #21262d; color: #e6edf3; border: 1px solid #30363d; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: #e6edf3; }
+    .card p  { font-size: 0.875rem; color: #8b949e; }
+
+    section { margin-bottom: 4rem; }
+    section h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #21262d;
+    }
+
+    pre {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1.5rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    code { font-family: "SF Mono", "Fira Code", monospace; }
+    .k { color: #79c0ff; }  /* key */
+    .s { color: #a5d6ff; }  /* string value */
+    .n { color: #f47067; }  /* number */
+    .p { color: #8b949e; }  /* punctuation */
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; color: #8b949e; font-weight: 500; border-bottom: 1px solid #21262d; }
+    td { padding: 0.5rem 0.75rem; border-bottom: 1px solid #161b22; }
+    td:first-child { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.8rem; color: #f47067; }
+
+    footer {
+      border-top: 1px solid #21262d;
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #484f58;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="wordmark">PMF</span>
+  <nav>
+    <a href="SPEC.md">Spec</a>
+    <a href="schema/pmf-1.0.schema.json">Schema</a>
+    <a href="examples/synthwave-example.pmf">Example</a>
+    <a href="https://github.com/SimplyLiz/pmf-spec">GitHub</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Procedural Music Format</h1>
+    <p class="tagline">An open JSON-based format for procedural and AI-assisted music composition data. The recipe behind the music, not the audio itself.</p>
+    <div class="badges">
+      <span class="badge badge-blue">Version 1.0</span>
+      <span class="badge badge-green">MIT License</span>
+      <span class="badge badge-blue">JSON</span>
+    </div>
+    <div class="cta">
+      <a class="btn btn-primary" href="SPEC.md">Read the Spec</a>
+      <a class="btn btn-secondary" href="https://github.com/SimplyLiz/pmf-spec">View on GitHub</a>
+    </div>
+  </div>
+
+  <section>
+    <h2>What PMF stores</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>Identity</h3>
+        <p>Seed, key, BPM, mood, bar count — everything that makes this composition unique.</p>
+      </div>
+      <div class="card">
+        <h3>Harmony</h3>
+        <p>Chord progression with names and scale degrees, bass pattern, arp structure.</p>
+      </div>
+      <div class="card">
+        <h3>Melody</h3>
+        <p>Motifs in ABC notation with interval and rhythm descriptions — readable by LLMs and humans alike.</p>
+      </div>
+      <div class="card">
+        <h3>Arrangement</h3>
+        <p>Section names, bar-gain masks, and melody-on bars — the full dynamic shape of the loop.</p>
+      </div>
+      <div class="card">
+        <h3>Synthesis</h3>
+        <p>Per-voice parameters with semantic labels alongside raw values. Engine-defined but structured.</p>
+      </div>
+      <div class="card">
+        <h3>Summary</h3>
+        <p>A natural language paragraph generated by the engine. An LLM can read this alone and understand the composition.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Minimal example</h2>
+    <pre><code><span class="p">{</span>
+  <span class="k">"pmf_version"</span><span class="p">:</span> <span class="s">"1.0"</span><span class="p">,</span>
+  <span class="k">"engine"</span><span class="p">:</span>      <span class="s">"my-engine"</span><span class="p">,</span>
+  <span class="k">"summary"</span><span class="p">:</span>     <span class="s">"Upbeat 4-bar loop in C major at 120 BPM."</span><span class="p">,</span>
+  <span class="k">"identity"</span><span class="p">: {</span>
+    <span class="k">"seed"</span><span class="p">:</span> <span class="n">1</span><span class="p">,</span>
+    <span class="k">"bpm"</span><span class="p">:</span>  <span class="n">120.0</span><span class="p">,</span>
+    <span class="k">"key"</span><span class="p">:</span>  <span class="s">"C major"</span><span class="p">,</span>
+    <span class="k">"bars"</span><span class="p">:</span> <span class="n">4</span>
+  <span class="p">},</span>
+  <span class="k">"render_key"</span><span class="p">: {</span>
+    <span class="k">"sample_rate"</span><span class="p">:</span>         <span class="n">44100</span><span class="p">,</span>
+    <span class="k">"bars"</span><span class="p">:</span>                <span class="n">4</span><span class="p">,</span>
+    <span class="k">"stem_format"</span><span class="p">:</span>         <span class="s">"stereo"</span><span class="p">,</span>
+    <span class="k">"loop_mode"</span><span class="p">:</span>           <span class="s">"looped"</span><span class="p">,</span>
+    <span class="k">"engine_version_major"</span><span class="p">:</span> <span class="n">1</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre>
+  </section>
+
+  <section>
+    <h2>Why not MIDI, MusicXML, or ABC?</h2>
+    <table>
+      <thead>
+        <tr><th>Format</th><th>Designed for</th><th>What's missing</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>MIDI</td><td>Performance capture</td><td>Binary; no compositional intent</td></tr>
+        <tr><td>MusicXML</td><td>Score printing</td><td>XML verbosity destroys LLM readability</td></tr>
+        <tr><td>ABC Notation</td><td>Score transcription</td><td>Note-level only; no seed, mood, or generative params</td></tr>
+        <tr><td>ChordPro</td><td>Chord sheets</td><td>No melody, arrangement, or synthesis detail</td></tr>
+      </tbody>
+    </table>
+    <br>
+    <p style="color:#8b949e; font-size:0.875rem;">PMF describes <em>how to generate</em> music, not music that already exists. It complements MIDI and WAV — an engine can export all three from the same render.</p>
+  </section>
+
+  <section>
+    <h2>Resources</h2>
+    <div class="grid">
+      <div class="card">
+        <h3><a href="SPEC.md">Specification</a></h3>
+        <p>Full field reference, design principles, AI consumption guide, and round-trip contract.</p>
+      </div>
+      <div class="card">
+        <h3><a href="schema/pmf-1.0.schema.json">JSON Schema</a></h3>
+        <p>JSON Schema Draft 2020-12. Use with ajv or any compliant validator.</p>
+      </div>
+      <div class="card">
+        <h3><a href="examples/synthwave-example.pmf">Full example</a></h3>
+        <p>Complete synthwave composition with harmony, melody, arrangement, voices, FX, and mix.</p>
+      </div>
+      <div class="card">
+        <h3><a href="https://github.com/SimplyLiz/pmf-spec">GitHub</a></h3>
+        <p>Source, issues, and test fixtures. Open an issue to propose changes or share an implementation.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  PMF is MIT licensed. Use freely in any project, open or commercial.<br>
+  <a href="https://github.com/SimplyLiz/pmf-spec">github.com/SimplyLiz/pmf-spec</a>
+</footer>
+
+</body>
+</html>
