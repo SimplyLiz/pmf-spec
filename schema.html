@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PMF JSON Schema 1.0 — Procedural Music Format</title>
+  <style>
+    :root {
+      --bg:        #07080d;
+      --surface:   #0e0f1a;
+      --surface-2: #141627;
+      --border:    #1c1f35;
+      --border-h:  #2d3154;
+      --v:         #7c3aed;
+      --vl:        #a78bfa;
+      --c:         #06b6d4;
+      --cl:        #67e8f9;
+      --g:         #34d399;
+      --gl:        #6ee7b7;
+      --o:         #f97316;
+      --text:      #eef2ff;
+      --text-2:    #7c85a9;
+      --text-3:    #3d4268;
+      --mono:      'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+      --sans:      -apple-system,'Helvetica Neue',Arial,sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    a { color: var(--vl); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 52px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7,8,13,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .logo-pip {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--v), var(--c));
+    }
+
+    .nav-links { display: flex; list-style: none; gap: 1.75rem; }
+    .nav-links a { font-size: 0.82rem; color: var(--text-3); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text-2); }
+
+    /* ─── LAYOUT ─── */
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding-top: 52px;
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─── */
+    aside {
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 2.5rem 1.25rem 2.5rem 0;
+      border-right: 1px solid var(--border);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .sidebar-label {
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 0.75rem;
+      padding-left: 0.75rem;
+    }
+
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav a {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-2);
+      padding: 0.3rem 0.75rem;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .sidebar-nav a:hover { color: var(--text); background: var(--surface); border-left-color: var(--border-h); text-decoration: none; }
+    .sidebar-nav a.active { color: var(--vl); background: rgba(124,58,237,0.08); border-left-color: var(--v); }
+
+    /* ─── MAIN ─── */
+    main {
+      padding: 3.5rem 3rem 6rem 3.5rem;
+      min-width: 0;
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.8rem;
+      color: var(--text-3);
+      margin-bottom: 2rem;
+      transition: color 0.15s;
+    }
+    .back:hover { color: var(--text-2); text-decoration: none; }
+
+    /* Header */
+    .page-header {
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-eyebrow {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cl);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #eef2ff 30%, #67e8f9 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .page-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .meta-item { font-size: 0.8rem; color: var(--text-2); }
+    .meta-item strong {
+      font-weight: 500;
+      color: var(--text-3);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+
+    .validate-cmd {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.65rem 1rem;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--gl);
+      width: fit-content;
+    }
+
+    .validate-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    /* Section */
+    .schema-section {
+      margin-bottom: 3rem;
+      scroll-margin-top: 80px;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .section-type {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--cl);
+      background: rgba(6,182,212,0.08);
+      border: 1px solid rgba(6,182,212,0.2);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .section-desc {
+      font-size: 0.85rem;
+      color: var(--text-2);
+      margin-bottom: 1.25rem;
+      line-height: 1.6;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .required-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .req-chip {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(124,58,237,0.1);
+      border: 1px solid rgba(124,58,237,0.25);
+      color: var(--vl);
+    }
+
+    /* Property cards */
+    .props { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .prop {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 0.5rem 1.5rem;
+      transition: border-color 0.15s;
+    }
+
+    .prop:hover { border-color: var(--border-h); }
+
+    .prop.is-required { border-left: 2px solid var(--v); }
+
+    .prop-left { min-width: 0; }
+
+    .prop-name {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--vl);
+      margin-bottom: 0.3rem;
+      word-break: break-all;
+    }
+
+    .prop-badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+
+    .badge-type    { color: var(--cl);  border-color: rgba(6,182,212,0.3);   background: rgba(6,182,212,0.06);  }
+    .badge-req     { color: var(--gl);  border-color: rgba(52,211,153,0.3);  background: rgba(52,211,153,0.06); }
+    .badge-opt     { color: var(--text-3); border-color: var(--border);      background: transparent; }
+    .badge-const   { color: var(--o);   border-color: rgba(249,115,22,0.3);  background: rgba(249,115,22,0.06); }
+    .badge-num     { color: #f9a8d4;    border-color: rgba(249,168,212,0.3); background: rgba(249,168,212,0.06);}
+
+    .prop-right {}
+
+    .prop-desc {
+      font-size: 0.82rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    .prop-desc code {
+      font-family: var(--mono);
+      font-size: 0.8em;
+      color: var(--vl);
+      background: rgba(124,58,237,0.1);
+      padding: 0.05em 0.3em;
+      border-radius: 3px;
+    }
+
+    .prop-constraints {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    /* Engine-defined block */
+    .engine-defined {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.4rem;
+      font-size: 0.85rem;
+      color: var(--text-2);
+    }
+
+    .engine-defined strong { color: var(--text); font-weight: 500; }
+
+    /* Raw JSON section */
+    .raw-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+
+    .raw-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .raw-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .raw-dl {
+      font-size: 0.78rem;
+      color: var(--text-3);
+      padding: 0.3rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      transition: all 0.15s;
+    }
+
+    .raw-dl:hover { color: var(--text-2); border-color: var(--border-h); text-decoration: none; }
+
+    .editor {
+      background: #060710;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(6,182,212,0.08);
+    }
+
+    .editor-bar {
+      background: #0c0d18;
+      padding: 0.55rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .editor-fname {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-3);
+      margin: 0 auto;
+      padding-right: 1.8rem;
+    }
+
+    .editor-body { display: flex; overflow-x: auto; }
+
+    .ln {
+      padding: 1.2rem 0;
+      min-width: 2.8rem;
+      text-align: right;
+      border-right: 1px solid #141524;
+      flex-shrink: 0;
+    }
+
+    .ln span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      line-height: 1.85;
+      color: #272b42;
+      padding: 0 0.7rem;
+      user-select: none;
+    }
+
+    .code-body { padding: 1.2rem 1.4rem; overflow-x: auto; flex: 1; }
+
+    pre {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      line-height: 1.85;
+      white-space: pre;
+    }
+
+    /* JSON token colors */
+    .jk  { color: #82aaff; }   /* key */
+    .js  { color: #c3e88d; }   /* string value */
+    .jn  { color: #f78c6c; }   /* number / bool */
+    .jp  { color: #4e5579; }   /* punctuation */
+    .jc  { color: #697098; }   /* bracket */
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { display: none; }
+      main { padding: 2rem 1.25rem 4rem; }
+      .prop { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">
+    <span class="logo-pip"></span>
+    PMF
+  </a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="spec.html">Spec</a></li>
+    <li><a href="https://github.com/SimplyLiz/pmf-spec/blob/main/examples/synthwave-example.pmf" target="_blank">Example</a></li>
+    <li><a href="https://github.com/SimplyLiz/pmf-spec" target="_blank">GitHub ↗</a></li>
+  </ul>
+</nav>
+
+<div class="layout">
+
+  <aside>
+    <div class="sidebar-label">Sections</div>
+    <ul class="sidebar-nav">
+      <li><a href="#root">Root</a></li>
+      <li><a href="#identity">identity</a></li>
+      <li><a href="#render_key">render_key</a></li>
+      <li><a href="#harmony">harmony</a></li>
+      <li><a href="#melody">melody</a></li>
+      <li><a href="#arrangement">arrangement</a></li>
+      <li><a href="#voices">voices</a></li>
+      <li><a href="#fx">fx</a></li>
+      <li><a href="#mix">mix</a></li>
+      <li><a href="#extensions">extensions</a></li>
+      <li><a href="#raw">Raw JSON</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <a href="index.html" class="back">← Back to PMF</a>
+
+    <div class="page-header">
+      <div class="page-eyebrow">JSON Schema · Draft 2020-12</div>
+      <h1 class="page-title">PMF Schema 1.0</h1>
+      <div class="page-meta">
+        <div class="meta-item"><strong>Dialect</strong>JSON Schema 2020-12</div>
+        <div class="meta-item"><strong>File</strong>pmf-1.0.schema.json</div>
+        <div class="meta-item"><strong>Required fields</strong>pmf_version, engine, summary, identity, render_key</div>
+      </div>
+      <div class="validate-cmd">
+        <span class="validate-label">Validate</span>
+        npx ajv-cli validate -s schema/pmf-1.0.schema.json -d your-file.pmf
+      </div>
+    </div>
+
+    <!-- ROOT -->
+    <div class="schema-section" id="root">
+      <h2>Root <span class="section-type">object</span></h2>
+      <p class="section-desc">Top-level object. Five fields are required; all others are optional and engine-defined.</p>
+      <div class="required-list">
+        <span style="font-size:0.72rem;color:var(--text-3);font-family:var(--mono);align-self:center">required:</span>
+        <span class="req-chip">pmf_version</span>
+        <span class="req-chip">engine</span>
+        <span class="req-chip">summary</span>
+        <span class="req-chip">identity</span>
+        <span class="req-chip">render_key</span>
+      </div>
+      <div class="props">
+        <div class="prop is-required">
+          <div class="prop-left">
+            <div class="prop-name">pmf_version</div>
+            <div class="prop-badges">
+              <span class="badge badge-type">string</span>
+              <span class="badge badge-req">required</span>
+              <span class="badge badge-const">const "1.0"</span>
+            </div>
+          </div>
+          <div class="prop-right">
+            <div class="prop-desc">PMF format version. Must be exactly <code>"1.0"</code> for this schema.</div>
+          </div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left">
+            <div class="prop-name">engine</div>
+            <div class="prop-badges">
+              <span class="badge badge-type">string</span>
+              <span class="badge badge-req">required</span>
+            </div>
+          </div>
+          <div class="prop-right">
+            <div class="prop-desc">Name of the generating engine (e.g. <code>"synthwave_engine"</code>).</div>
+          </div>
+        </div>
+        <div class="prop">
+          <div class="prop-left">
+            <div class="prop-name">engine_version</div>
+            <div class="prop-badges">
+              <span class="badge badge-type">string</span>
+              <span class="badge badge-opt">optional</span>
+            </div>
+          </div>
+          <div class="prop-right">
+            <div class="prop-desc">Semver of the engine that wrote this file.</div>
+          </div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left">
+            <div class="prop-name">summary</div>
+            <div class="prop-badges">
+              <span class="badge badge-type">string</span>
+              <span class="badge badge-req">required</span>
+              <span class="badge badge-num">maxLength 500</span>
+            </div>
+          </div>
+          <div class="prop-right">
+            <div class="prop-desc">Engine-generated natural language description. Under 80 words. An LLM reads this first.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IDENTITY -->
+    <div class="schema-section" id="identity">
+      <h2>identity <span class="section-type">object</span></h2>
+      <p class="section-desc">Who this composition is and what it sounds like. Four fields are required.</p>
+      <div class="required-list">
+        <span style="font-size:0.72rem;color:var(--text-3);font-family:var(--mono);align-self:center">required:</span>
+        <span class="req-chip">seed</span><span class="req-chip">bpm</span><span class="req-chip">key</span><span class="req-chip">bars</span>
+      </div>
+      <div class="props">
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">seed</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-req">required</span><span class="badge badge-num">≥ 0</span></div></div>
+          <div class="prop-right"><div class="prop-desc">The seed that produced this composition.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">mood</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Mood preset name (engine-defined, e.g. <code>"NightDrive"</code>).</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">bpm</div><div class="prop-badges"><span class="badge badge-type">number</span><span class="badge badge-req">required</span><span class="badge badge-num">20 – 400</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Tempo in beats per minute.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">bpm_label</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human label for the tempo (e.g. <code>"mid-tempo"</code>, <code>"driving"</code>).</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">key</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-req">required</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Key name in standard notation (e.g. <code>"A minor"</code>, <code>"F# minor"</code>, <code>"C major"</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">key_type</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Scale type: <code>"natural_minor"</code>, <code>"harmonic_minor"</code>, <code>"major"</code>, <code>"pentatonic"</code>, etc.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">key_shift_semitones</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-opt">optional</span><span class="badge badge-num">−24 – 24</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Semitone offset from the engine's reference key.</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">bars</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-req">required</span><span class="badge badge-num">≥ 1</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Number of bars in the loop.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">time_signature</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Time signature. Default: <code>"4/4"</code>.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RENDER_KEY -->
+    <div class="schema-section" id="render_key">
+      <h2>render_key <span class="section-type">object</span></h2>
+      <p class="section-desc">Exact rendering context. Together with <code>identity.seed</code>, these fields are the minimum needed to reproduce byte-identical output from a compatible engine version.</p>
+      <div class="required-list">
+        <span style="font-size:0.72rem;color:var(--text-3);font-family:var(--mono);align-self:center">required:</span>
+        <span class="req-chip">sample_rate</span><span class="req-chip">bars</span><span class="req-chip">stem_format</span><span class="req-chip">loop_mode</span><span class="req-chip">engine_version_major</span>
+      </div>
+      <div class="props">
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">sample_rate</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-req">required</span><span class="badge badge-num">8000 – 192000</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Audio sample rate in Hz.</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">bars</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-req">required</span><span class="badge badge-num">≥ 1</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Bar count for this render. Must match <code>identity.bars</code>.</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">stem_format</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-req">required</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Channel layout: <code>"mono"</code>, <code>"stereo"</code>, or engine-defined variant.</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">loop_mode</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-req">required</span><span class="badge badge-const">enum</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Whether the composition was rendered as a seamless loop. Allowed values: <code>"looped"</code> or <code>"finite"</code>.</div></div>
+        </div>
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">engine_version_major</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-req">required</span><span class="badge badge-num">≥ 0</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Major semver component of the engine. Determinism is stable within a major version.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">palette_pack_version</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-opt">optional</span><span class="badge badge-num">≥ 0</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Version of the palette pack used, if the engine supports swappable packs.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HARMONY -->
+    <div class="schema-section" id="harmony">
+      <h2>harmony <span class="section-type">object · optional</span></h2>
+      <p class="section-desc">Harmonic structure of the composition. All fields optional.</p>
+      <div class="props">
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">progression</div><div class="prop-badges"><span class="badge badge-type">string[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Chord names in order (e.g. <code>["Am", "F", "C", "G"]</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">progression_degrees</div><div class="prop-badges"><span class="badge badge-type">string[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Scale degrees for each chord (e.g. <code>["i", "VI", "III", "VII"]</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">progression_label</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human description of the progression character (e.g. <code>"classic minor turnaround"</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">key_root_midi</div><div class="prop-badges"><span class="badge badge-type">integer</span><span class="badge badge-opt">optional</span><span class="badge badge-num">0 – 127</span></div></div>
+          <div class="prop-right"><div class="prop-desc">MIDI note number of the key root (A4 = 69).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">bass_pattern</div><div class="prop-badges"><span class="badge badge-type">integer[]</span><span class="badge badge-opt">optional</span><span class="badge badge-num">−24 – 24 each</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Per-beat interval offsets from chord root in semitones.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">bass_pattern_label</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human description (e.g. <code>"root-root-fifth-root"</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">arp_pattern</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Arp pattern name (engine-defined).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">arp_pattern_label</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human description of the arp movement.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">arp_bar_order</div><div class="prop-badges"><span class="badge badge-type">integer[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Which arp pattern index plays each bar.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MELODY -->
+    <div class="schema-section" id="melody">
+      <h2>melody <span class="section-type">object · optional</span></h2>
+      <p class="section-desc">Named melodic motifs. Keys are motif identifiers (<code>"motif_a"</code>, <code>"motif_b"</code>, or any name). Each value is a motif object — <code>abc</code> is the only required field.</p>
+      <div class="props">
+        <div class="prop is-required">
+          <div class="prop-left"><div class="prop-name">abc</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-req">required</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Motif body in ABC notation. No headers — key context comes from <code>identity.key</code>. Example: <code>"A2 c B A4"</code>.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">intervals_semitones</div><div class="prop-badges"><span class="badge badge-type">integer[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Interval steps in semitones. Allows LLM reasoning without ABC parsing.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">rhythm</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human-readable rhythm description (e.g. <code>"half quarter quarter whole"</code>).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">label</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Human description of the motif's musical character.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">active_bars</div><div class="prop-badges"><span class="badge badge-type">integer[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Bar indices where this motif plays.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARRANGEMENT -->
+    <div class="schema-section" id="arrangement">
+      <h2>arrangement <span class="section-type">object · optional</span></h2>
+      <p class="section-desc">How the composition unfolds bar by bar. All fields optional.</p>
+      <div class="props">
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">template</div><div class="prop-badges"><span class="badge badge-type">string</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Arrangement template name (engine-defined).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">sections</div><div class="prop-badges"><span class="badge badge-type">object[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Array of section objects. Each has: <code>name</code> (string, required), <code>bars</code> ([start, end] inclusive, required), <code>stems_active</code> (string[], optional).</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">melody_on_bars</div><div class="prop-badges"><span class="badge badge-type">integer[]</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Bar indices where melody plays.</div></div>
+        </div>
+        <div class="prop">
+          <div class="prop-left"><div class="prop-name">bar_gains</div><div class="prop-badges"><span class="badge badge-type">object</span><span class="badge badge-opt">optional</span></div></div>
+          <div class="prop-right"><div class="prop-desc">Per-stem gain arrays. Keys are stem names, values are float arrays (one per bar). Range: <code>0.0</code>–<code>2.0</code>. Semantics: 0.0 = silent, 1.0 = full, &gt;1.0 = boosted.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICES / FX / MIX -->
+    <div class="schema-section" id="voices">
+      <h2>voices <span class="section-type">object · optional</span></h2>
+      <div class="engine-defined">
+        <strong>Engine-defined.</strong> Per-voice synthesis parameters. Keys are voice names (e.g. <code>"kick"</code>, <code>"pad"</code>, <code>"lead"</code>). PMF specifies no fixed property schema — only the convention that semantic labels accompany raw numeric values where available. Validators accept any object.
+      </div>
+    </div>
+
+    <div class="schema-section" id="fx">
+      <h2>fx <span class="section-type">object · optional</span></h2>
+      <div class="engine-defined">
+        <strong>Engine-defined.</strong> Post-processing chain parameters. Common sub-keys in practice: <code>reverb</code>, <code>delay</code>, <code>sidechain</code>, <code>limiter</code>. Content and schema are engine-specific. Validators accept any object.
+      </div>
+    </div>
+
+    <div class="schema-section" id="mix">
+      <h2>mix <span class="section-type">object · optional</span></h2>
+      <div class="engine-defined">
+        <strong>Engine-defined.</strong> Master mix parameters: stem volume presets, tween timing, reactive control tables. Content and schema are engine-specific. Validators accept any object.
+      </div>
+    </div>
+
+    <!-- EXTENSIONS -->
+    <div class="schema-section" id="extensions">
+      <h2>extensions <span class="section-type">object · optional</span></h2>
+      <p class="section-desc">Engine-specific extensions under namespaced keys. Each key should match the engine name to avoid collisions (e.g. <code>"synthwave_engine"</code>). Each value is a free-form object.</p>
+      <div class="engine-defined">
+        Use <code>extensions</code> for engine-specific data that doesn't belong in <code>voices</code>, <code>fx</code>, or <code>mix</code>. Do not duplicate core fields here. See <a href="https://github.com/SimplyLiz/pmf-spec/blob/main/docs/extensions.md" target="_blank">docs/extensions.md</a> for the full policy.
+      </div>
+    </div>
+
+    <!-- RAW JSON -->
+    <div class="raw-section" id="raw">
+      <div class="raw-header">
+        <div class="raw-title">Raw Schema</div>
+        <a href="https://github.com/SimplyLiz/pmf-spec/blob/main/schema/pmf-1.0.schema.json" target="_blank" class="raw-dl">View on GitHub ↗</a>
+      </div>
+      <div class="editor">
+        <div class="editor-bar">
+          <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+          <span class="editor-fname">pmf-1.0.schema.json</span>
+        </div>
+        <div class="editor-body">
+          <div class="ln" id="lnums"></div>
+          <div class="code-body">
+            <pre id="rawjson"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Sidebar active on scroll ─────────────────────────
+  const sections = document.querySelectorAll('.schema-section[id], .raw-section[id]');
+  const links    = document.querySelectorAll('.sidebar-nav a');
+
+  new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' }).observe !== undefined &&
+  sections.forEach(s => new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-nav a[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' }).observe(s));
+
+  // ── Render raw JSON with syntax highlighting ─────────
+  const raw = `{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://SimplyLiz.github.io/pmf-spec/schema/pmf-1.0.schema.json",
+  "title": "Procedural Music Format (PMF) 1.0",
+  "description": "Schema for PMF 1.0 composition files.",
+  "type": "object",
+  "required": ["pmf_version", "engine", "summary", "identity", "render_key"],
+  "properties": {
+    "pmf_version": { "type": "string", "const": "1.0" },
+    "engine":      { "type": "string" },
+    "engine_version": { "type": "string" },
+    "summary":     { "type": "string", "maxLength": 500 },
+    "identity": {
+      "type": "object",
+      "required": ["seed", "bpm", "key", "bars"],
+      "properties": {
+        "seed":               { "type": "integer", "minimum": 0 },
+        "mood":               { "type": "string" },
+        "bpm":                { "type": "number",  "minimum": 20, "maximum": 400 },
+        "bpm_label":          { "type": "string" },
+        "key":                { "type": "string" },
+        "key_type":           { "type": "string" },
+        "key_shift_semitones":{ "type": "integer", "minimum": -24, "maximum": 24 },
+        "bars":               { "type": "integer", "minimum": 1 },
+        "time_signature":     { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "render_key": {
+      "type": "object",
+      "required": ["sample_rate","bars","stem_format","loop_mode","engine_version_major"],
+      "properties": {
+        "sample_rate":         { "type": "integer", "minimum": 8000, "maximum": 192000 },
+        "bars":                { "type": "integer", "minimum": 1 },
+        "stem_format":         { "type": "string" },
+        "loop_mode":           { "type": "string", "enum": ["looped","finite"] },
+        "engine_version_major":{ "type": "integer", "minimum": 0 },
+        "palette_pack_version":{ "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "harmony":     { "type": "object" },
+    "melody":      { "type": "object" },
+    "arrangement": { "type": "object" },
+    "voices":      { "type": "object" },
+    "fx":          { "type": "object" },
+    "mix":         { "type": "object" },
+    "extensions":  { "type": "object" }
+  }
+}`;
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function highlight(s) {
+    return escHtml(s)
+      .replace(/("(?:\\.|[^"\\])*")(\s*:)/g, '<span class="jk">$1</span>$2')
+      .replace(/:\s*("(?:\\.|[^"\\])*")/g, ': <span class="js">$1</span>')
+      .replace(/:\s*(-?\d+(?:\.\d+)?)/g, ': <span class="jn">$1</span>')
+      .replace(/:\s*(true|false|null)/g, ': <span class="jn">$1</span>')
+      .replace(/([{}\[\],])/g, '<span class="jp">$1</span>');
+  }
+
+  const pre = document.getElementById('rawjson');
+  pre.innerHTML = highlight(raw);
+
+  const lines = raw.split('\n').length;
+  const lnDiv = document.getElementById('lnums');
+  lnDiv.innerHTML = Array.from({length: lines}, (_,i) =>
+    `<span>${i+1}</span>`).join('');
+</script>
+</body>
+</html>
