@@ -54,10 +54,19 @@ PMF defines two modes of round-trip, with different requirements and guarantees.
 
 ## Validation Before Round-Trip
 
-Before submitting a PMF to an engine for round-trip, validate it against the schema:
+Before submitting a PMF to an engine for round-trip, validate it against the schema using the official library:
 
 ```bash
-npx ajv-cli validate -s schema/pmf-1.0.schema.json -d your-file.pmf
+npx @procedural-audio-format/pmf validate your-file.pmf
+```
+
+Or from code, before passing a PMF to your engine:
+
+```ts
+import { validate } from "@procedural-audio-format/pmf";
+
+const result = validate(data);
+if (!result.valid) throw new Error(result.errors.map(e => `${e.path}: ${e.message}`).join("\n"));
 ```
 
 A file that fails schema validation may be accepted by some engines and rejected by others. Engines are not required to validate incoming PMF files, but they are encouraged to warn on schema violations.

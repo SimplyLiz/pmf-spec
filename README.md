@@ -8,6 +8,7 @@ title: PMF — Procedural Music Format
 [![Website](https://img.shields.io/badge/website-simplyliz.github.io%2Fpmf--spec-blue.svg)](https://simplyliz.github.io/pmf-spec/)
 [![Version: 1.0](https://img.shields.io/badge/version-1.0-blue.svg)](https://simplyliz.github.io/pmf-spec/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://simplyliz.github.io/pmf-spec/)
+[![npm](https://img.shields.io/npm/v/@procedural-audio-format/pmf.svg)](https://www.npmjs.com/package/@procedural-audio-format/pmf)
 
 PMF is an open JSON-based format for procedural and AI-assisted music composition data.
 
@@ -87,10 +88,38 @@ A `.pmf` file has a generic core (readable by any tool) and optional engine-spec
 
 ## Validate
 
-A validator CLI is planned. In the meantime, use the JSON Schema directly:
+Install the official library:
 
 ```bash
-npx ajv-cli validate -s schema/pmf-1.0.schema.json -d your-file.pmf
+npm install @procedural-audio-format/pmf
+```
+
+**CLI — validate a file:**
+
+```bash
+npx @procedural-audio-format/pmf validate your-file.pmf
+```
+
+**Library — validate in code:**
+
+```ts
+import { validate, parse } from "@procedural-audio-format/pmf";
+
+// non-throwing — returns { valid, errors[] }
+const result = validate(data);
+if (!result.valid) {
+  result.errors.forEach(e => console.error(e.path, e.message));
+}
+
+// throwing — returns a typed PMFFile or throws with readable errors
+const pmf = parse(jsonString);
+console.log(pmf.identity.bpm, pmf.harmony?.progression);
+```
+
+All PMF types are exported for TypeScript consumers:
+
+```ts
+import type { PMFFile, PMFIdentity, PMFRenderKey, PMFHarmony } from "@procedural-audio-format/pmf";
 ```
 
 ---
